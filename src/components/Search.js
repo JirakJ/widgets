@@ -31,7 +31,9 @@ const Search = () => {
             });
             setResults(response.data.query.search);
         };
-        search();
+        if(debouncedInput !== ""){
+            search();
+        }
     },[debouncedInput])
 
     const renderedResults = results.map((result) => {
