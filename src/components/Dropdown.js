@@ -2,6 +2,31 @@ import React, { useState, useEffect, useRef} from 'react';
 
 const Dropdown = ({options, selected, onSelectedChange}) => {
     const [open, setOpen] = useState(false);
+    const ref = useRef();
+    //fix onClick={() => setOpen(!open)} for React v17
+    // [] -> this makes it run only one time as init
+    useEffect(() => {
+        const onBodyClick = (event) => {
+            if(ref.current.contains(event.target)){
+                return;
+            }
+            setOpen(false);
+        }
+
+        document.body.addEventListener('click', onBodyClick, { capture: true });
+
+        return () => {
+            document.body.removeEventListener('click', onBodyClick, { capture: true });
+        };
+    }, []);
+
+    useEffect(() => {
+        document.body.addEventListener('click', () => {
+            setOpen(false);
+        },
+            {capture: true});
+    }, [])
+
     const renderedOptions = options.filter(f => f !== selected).map((option) => {
         return (
             <div
@@ -15,7 +40,7 @@ const Dropdown = ({options, selected, onSelectedChange}) => {
     });
 
     return (
-      <div className="ui form">
+      <div className="ui form" ref={ref}>
           <div className="field">
               <label className="label">Select a color</label>
               <div
