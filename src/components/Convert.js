@@ -3,6 +3,17 @@ import google from "../api/google";
 
 const Convert = ({language, text}) => {
     const [translated, setTranslated] = useState("");
+    const [debounceText, setDebounceText] = useState(text);
+
+    useEffect(() => {
+        const timerId = setTimeout(() => {
+            setDebounceText(text);
+        },500);
+
+        return () => {
+            clearTimeout(timerId);
+        }
+    })
 
     useEffect(() => {
         const doTranslation = async () => {
@@ -10,7 +21,7 @@ const Convert = ({language, text}) => {
                 {},
                 {
                     params: {
-                        q: text,
+                        q: debounceText,
                         target: language.value
                     }
                 });
@@ -22,7 +33,7 @@ const Convert = ({language, text}) => {
 
 
         doTranslation();
-    }, [language, text])
+    }, [language, debounceText])
 
     return (
         <div>
