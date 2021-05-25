@@ -3,29 +3,36 @@ import wikipedia from "../api/wikipedia";
 
 const Search = () => {
     const [input, setInput] = useState("");
+    const [debouncedInput, setDebouncedInput] = useState(input);
     const [results, setResults] = useState([]);
 
     const onInputChange = (event) => {
         setInput(event.target.value);
     }
 
+
+    //debounce logic
+    useEffect(() => {
+        const timerId = setTimeout(() => {
+            setDebouncedInput(input);
+        }, 1000);
+
+        return () => {
+            clearTimeout(timerId);
+        }
+    }, [input])
+
     useEffect(() => {
         const search = async () => {
-            const response = await wikipedia.get("", { params: { srsearch: input } });
+            const response = await wikipedia.get("", {
+                params: {
+                    srsearch: debouncedInput
+                }
+            });
             setResults(response.data.query.search);
         };
-
-        if(input && !results.length) {
-            search();
-        } else {
-            const timeoutId = setTimeout(() => {
-                if(input) {
-                    search();
-                }
-            }, 500);
-            return () => clearTimeout(timeoutId);
-        }
-    },[input])
+        search();
+    },[debouncedInput])
 
     const renderedResults = results.map((result) => {
         return (
